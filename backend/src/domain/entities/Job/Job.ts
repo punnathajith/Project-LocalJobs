@@ -10,6 +10,8 @@ export class Job{
     public jobDescription: string,
     public applicationEmail: string,
     public createdAt: Date,
+    public postedBy?: string,   
+    public posterType?: "User" | "Company", 
     public id?: string 
   ) {}
 }

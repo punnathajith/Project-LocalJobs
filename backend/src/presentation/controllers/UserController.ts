@@ -35,14 +35,13 @@ export class UserController {
       const { accessToken, refreshToken } = AuthService.issueTokens({
         id: user.id,
         email: user.email,
-        type: "user",
+        type: "User",
       });
 
       AuthService.setRefreshToken(res, refreshToken);
-
       res.status(200).json({
         accessToken,
-        user: { id: user.id, name: user.name, email: user.email, type: "user" },
+        user: { id: user.id, name: user.name, email: user.email, type: "User" },
       });
     } catch (error) {
       res.status(500).json({ message: (error as Error).message });

@@ -1,5 +1,5 @@
 import JobCard from "./JobCards";
-import type { Filters } from "./FiltersSidebar"; 
+import type { Filters } from "./FiltersSidebar";
 
 interface JobListProps {
   filters: Filters;
@@ -21,7 +21,7 @@ const jobs = [
   },
 ];
 
-const JobList: React.FC<JobListProps> = ({ filters,search }) => {
+const JobList: React.FC<JobListProps> = ({ filters, search }) => {
   const filteredJobs = jobs.filter((job) => {
     const matchSearch = job.title.toLowerCase().includes(search.toLowerCase());
 
@@ -46,7 +46,7 @@ const JobList: React.FC<JobListProps> = ({ filters,search }) => {
     return matchSearch && matchEmployment && matchSeniority && matchSalary;
   });
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div className="flex flex-col gap-4">
       {filteredJobs.map((job, idx) => (
         <JobCard key={idx} {...job} />
       ))}

@@ -1,4 +1,4 @@
-import { Request,Response } from "express";
+import { Request, Response } from "express";
 import { injectable } from "tsyringe";
 import { CreateJob } from "../../application/usecases/jobUsecases/createJob";
 
@@ -6,42 +6,20 @@ import { CreateJob } from "../../application/usecases/jobUsecases/createJob";
 export class JobController {
   constructor(private createJob: CreateJob) {}
 
-  async create(req: Request, res: Response): Promise<void> {
+  async create(req: Request, res: Response) {
     try {
-      const {
-        jobTitle,
-        closeDate,
-        location,
-        yearsOfExperience,
-        salary,
-        jobType,
-        requiredSkills,
-        jobDescription,
-        applicationEmail
-      } = req.body;
+      const { id, type } = (req as any).user; 
 
-      const job = await this.createJob.execute({
-        jobTitle,
-        closeDate,
-        location,
-        yearsOfExperience,
-        salary,
-        jobType,
-        requiredSkills,
-        jobDescription,
-        applicationEmail
-      });
+      const jobData = {
+        ...req.body,
+        postedBy: id,
+        posterType: type,
+      };
 
-      res.status(201).json({
-        success: true,
-        message: "Job posted successfully",
-        data: job
-      });
+      const job = await this.createJob.execute(jobData);
+      res.status(201).json(job);
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: (error as Error).message
-      });
+      res.status(400).json({ message: (error as Error).message });
     }
   }
 }

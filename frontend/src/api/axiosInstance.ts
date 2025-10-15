@@ -35,10 +35,10 @@ axiosInstance.interceptors.response.use(
       try {
         let refreshUrl = "";
         switch (user.type) {
-          case "admin":
+          case "Admin":
             refreshUrl = "/admin/refresh";
             break;
-          case "company":
+          case "Company":
             refreshUrl = "/company/refresh";
             break;
           default:

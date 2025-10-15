@@ -1,16 +1,22 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { useState } from "react";
 
-interface LocationFieldProps {
-  location: string;
-  setLocation: (loc: string) => void;
+interface Props {
+  value: string;
+  onChange: (value: string) => void;
 }
 
-export default function LocationField({
-  location,
-  setLocation,
-}: LocationFieldProps) {
+export default function LocationField({ value, onChange }: Props) {
+  const [location, setLocation] = useState(value);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setLocation(newValue);
+    onChange(newValue); // ✅ update parent immediately
+  };
+
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser.");
@@ -34,6 +40,7 @@ export default function LocationField({
             `${address.state || ""}, ${address.country || ""}`;
 
           setLocation(formattedLocation);
+          onChange(formattedLocation);
         } catch (err) {
           console.error(err);
           setLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
@@ -54,7 +61,7 @@ export default function LocationField({
           type="text"
           placeholder="Enter job location"
           value={location}
-          onChange={(e) => setLocation(e.target.value)}
+          onChange={handleInputChange}
         />
 
         <Button type="button" onClick={handleGetLocation} variant="default">

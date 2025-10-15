@@ -4,7 +4,7 @@ import { Link,useNavigate } from "react-router-dom"
 const Sidebar = () => {
   const navigate=useNavigate();
   return (
-   <aside className="w-64 bg-white shadow-md p-4 flex flex-col">
+   <aside className="w-64 bg-white p-4 flex flex-col border-r border-gray-200 min-h-screen">
       <div className="flex items-center space-x-3 my-5">
         <img
           src="https://i.pravatar.cc/50"

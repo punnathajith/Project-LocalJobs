@@ -48,6 +48,7 @@ const Signin = () => {
         res = await userAuthApi.login({ email, password });
       }
       const { accessToken, user } = res.data;
+      
       dispatch(setCredentials({ user, accessToken }));
       navigate("/home");
     } catch (err: unknown) {

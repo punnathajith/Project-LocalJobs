@@ -4,7 +4,7 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 interface User {
   id: string;
   email: string;
-  type: "user" | "company" | "admin"; 
+  type: "User" | "Company" | "Admin"; 
 }
 
 interface AuthState {

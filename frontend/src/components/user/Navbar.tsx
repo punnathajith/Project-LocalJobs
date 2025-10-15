@@ -12,11 +12,9 @@ import NavActions from "./navActions";
 
 const Navbar = () => {
   const user = useSelector((state: RootState) => state.auth.user);
-  console.log("User in Navbar:", user);
 
   const role = user?.type ?? "guest"; 
   const navItems = navConfig[role];
-  console.log("Navigation Items:", navItems);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 

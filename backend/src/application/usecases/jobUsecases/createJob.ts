@@ -12,6 +12,8 @@ interface ICreateJobDTO {
   requiredSkills: string[];
   jobDescription: string;
   applicationEmail: string;
+  postedBy: string;          
+  posterType: "User" | "Company"; 
 }
 
 @injectable()
@@ -33,7 +35,9 @@ export class CreateJob {
       jobData.requiredSkills,
       jobData.jobDescription,
       jobData.applicationEmail,
-      new Date() 
+      new Date() ,
+      jobData.postedBy,
+      jobData.posterType
     );
 
     return this.jobRepo.createJob(newJob);

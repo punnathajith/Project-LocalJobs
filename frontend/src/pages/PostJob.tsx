@@ -5,6 +5,10 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { jobApi } from "@/api/jobApi";
+import type { JobData } from "@/api/jobApi";
+import Modal from "@/components/common/Modal";
+import { useNavigate } from "react-router-dom";
 
 const PostJob = () => {
   const [formData, setFormData] = useState({
@@ -18,24 +22,41 @@ const PostJob = () => {
     jobDescription: "",
     applicationEmail: "",
   });
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleLocationChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, location: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Final Form Data:", formData);
 
-    // Example: send to backend
-    // await fetch("/api/jobs", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(formData),
-    // });
+    const payload: JobData = {
+      ...formData,
+      closeDate: new Date(formData.closeDate),
+      yearsOfExperience: Number(formData.yearsOfExperience),
+      requiredSkills: formData.requiredSkills
+        .split(",")
+        .map((skill) => skill.trim()),
+    };
+
+    jobApi
+      .createJob(payload)
+      .then(() => {
+        setModalOpen(true); 
+      })
+      .catch((err) => console.error(err));
   };
 
   return (
@@ -44,7 +65,7 @@ const PostJob = () => {
         <Navbar />
         <div className="flex pt-16">
           <Sidebar />
-          <div className="flex-1 p-6">
+          <div className="flex-1 p-6 bg-white border border-gray-200 rounded-lg shadow-sm m-6">
             <form onSubmit={handleSubmit}>
               <h2 className="text-2xl font-semibold mb-6">Post a Job</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
@@ -52,6 +73,7 @@ const PostJob = () => {
                   <Label htmlFor="JobTitle">Job Title</Label>
                   <Input
                     type="text"
+                    name="jobTitle"
                     placeholder="enter job title"
                     value={formData.jobTitle}
                     onChange={handleChange}
@@ -64,6 +86,7 @@ const PostJob = () => {
                   </label>
                   <input
                     type="date"
+                    name="closeDate"
                     className="w-full border border-gray-300 rounded-md p-2"
                     placeholder="Enter company name"
                     value={formData.closeDate}
@@ -72,15 +95,15 @@ const PostJob = () => {
                   />
                 </div>
                 <LocationField
-                  location={formData.location}
-                  setLocation={(loc) =>
-                    setFormData((prev) => ({ ...prev, location: loc }))
-                  }
+                  onChange={handleLocationChange}
+                  value={formData.location}
                 />
+
                 <div className="grid gap-1">
                   <Label htmlFor="yearsOfExperience">Years of Experience</Label>
                   <Input
                     type="number"
+                    name="yearsOfExperience"
                     placeholder="e.g., 3"
                     value={formData.yearsOfExperience}
                     onChange={handleChange}
@@ -90,6 +113,7 @@ const PostJob = () => {
                   <Label htmlFor="salary">Salary</Label>
                   <Input
                     type="text"
+                    name="salary"
                     className="w-full border border-gray-300 rounded-md p-2"
                     placeholder="Enter salary range"
                     value={formData.salary}
@@ -103,8 +127,9 @@ const PostJob = () => {
                     Job Type
                   </label>
                   <select
-                    className="w-full border border-gray-300 rounded-md p-2"
+                    className="w-full border border-gray-300 rounded-sm p-2"
                     value={formData.jobType}
+                    name="jobType"
                     onChange={handleChange}
                     required
                   >
@@ -122,6 +147,7 @@ const PostJob = () => {
                   </label>
                   <input
                     type="text"
+                    name="requiredSkills"
                     className="w-full border border-gray-300 rounded-md p-2"
                     placeholder="e.g., React, Node.js, TailwindCSS"
                     value={formData.requiredSkills}
@@ -140,6 +166,7 @@ const PostJob = () => {
                   <textarea
                     className="w-full border border-gray-300 rounded-md p-2 h-32"
                     placeholder="Enter job description"
+                    name="jobDescription"
                     value={formData.jobDescription}
                     onChange={handleChange}
                   ></textarea>
@@ -152,6 +179,7 @@ const PostJob = () => {
 
                   <input
                     type="email"
+                    name="applicationEmail"
                     className="w-full border border-gray-300 rounded-md p-2"
                     placeholder="Enter application email"
                     value={formData.applicationEmail}
@@ -163,6 +191,16 @@ const PostJob = () => {
                 Post Job
               </Button>
             </form>
+            <Modal
+              isOpen={modalOpen}
+              title="Job Posted Successfully!"
+              message="Your job has been added."
+              onClose={() => {
+                setModalOpen(false);
+                navigate("/view-jobs");
+              }}
+            />
+            ;
           </div>
         </div>
       </div>

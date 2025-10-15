@@ -44,6 +44,8 @@ export class JobRepoMongo implements IJobRepository {
       jobDoc.jobDescription,
       jobDoc.applicationEmail,
       jobDoc.createdAt,
+      jobDoc.postedBy?.toString(), // mapped postedBy
+      jobDoc.posterType, // mapped posterType
       jobDoc._id?.toString()
     );
   }
