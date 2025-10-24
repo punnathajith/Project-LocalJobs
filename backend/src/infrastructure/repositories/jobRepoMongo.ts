@@ -16,7 +16,10 @@ export class JobRepoMongo implements IJobRepository {
   }
 
   async updateJob(id: string, updates: Partial<Job>): Promise<Job | null> {
-    const updated = await JobModel.findByIdAndUpdate(id, updates, { new: true })
+    const updated = await JobModel.findByIdAndUpdate(id, updates, {
+      new: true,
+      runValidators: true, // ✅ ensures Mongoose validates enum, etc.
+    })
       .lean()
       .exec();
     return updated ? this.mapToEntity(updated) : null;
@@ -28,14 +31,26 @@ export class JobRepoMongo implements IJobRepository {
 
   async findAll(options?: { skip?: number; limit?: number }): Promise<Job[]> {
     const { skip = 0, limit = 10 } = options || {};
-    const jobs = await JobModel.find().skip(skip).limit(limit).lean().exec();
+    const jobs = await JobModel.find()
+      .sort({ createdAt: -1 }) // ✅ latest jobs first
+      .skip(skip)
+      .limit(limit)
+      .lean()
+      .exec();
+
+    return jobs.map((j) => this.mapToEntity(j));
+  }
+
+  async findByPoster(posterId: string): Promise<Job[]> {
+    // ✅ optional helper to get jobs posted by a specific user/company
+    const jobs = await JobModel.find({ postedBy: posterId }).lean().exec();
     return jobs.map((j) => this.mapToEntity(j));
   }
 
   private mapToEntity(jobDoc: any): Job {
     return new Job(
       jobDoc.jobTitle,
-      jobDoc.closeDate,
+      new Date(jobDoc.closeDate),
       jobDoc.location,
       jobDoc.yearsOfExperience,
       jobDoc.salary,
@@ -43,9 +58,9 @@ export class JobRepoMongo implements IJobRepository {
       jobDoc.requiredSkills,
       jobDoc.jobDescription,
       jobDoc.applicationEmail,
-      jobDoc.createdAt,
-      jobDoc.postedBy?.toString(), // mapped postedBy
-      jobDoc.posterType, // mapped posterType
+      new Date(jobDoc.createdAt),
+      jobDoc.postedBy?.toString(),
+      jobDoc.posterType,
       jobDoc._id?.toString()
     );
   }

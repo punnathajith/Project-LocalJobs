@@ -25,6 +25,7 @@ const PostJob = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
+  const today = new Date().toISOString().split("T")[0];
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -39,11 +40,10 @@ const PostJob = () => {
     setFormData((prev) => ({ ...prev, location: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSubmit = (status: "Open" | "Draft") => {
     const payload: JobData = {
       ...formData,
+      status, 
       closeDate: new Date(formData.closeDate),
       yearsOfExperience: Number(formData.yearsOfExperience),
       requiredSkills: formData.requiredSkills
@@ -53,10 +53,8 @@ const PostJob = () => {
 
     jobApi
       .createJob(payload)
-      .then(() => {
-        setModalOpen(true); 
-      })
-      .catch((err) => console.error(err));
+      .then(() => setModalOpen(true))
+      .catch(console.error);
   };
 
   return (
@@ -66,7 +64,7 @@ const PostJob = () => {
         <div className="flex pt-16">
           <Sidebar />
           <div className="flex-1 p-6 bg-white border border-gray-200 rounded-lg shadow-sm m-6">
-            <form onSubmit={handleSubmit}>
+            <form>
               <h2 className="text-2xl font-semibold mb-6">Post a Job</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                 <div className="grid gap-1">
@@ -87,6 +85,7 @@ const PostJob = () => {
                   <input
                     type="date"
                     name="closeDate"
+                    min={today}
                     className="w-full border border-gray-300 rounded-md p-2"
                     placeholder="Enter company name"
                     value={formData.closeDate}
@@ -103,6 +102,7 @@ const PostJob = () => {
                   <Label htmlFor="yearsOfExperience">Years of Experience</Label>
                   <Input
                     type="number"
+                    min="0"
                     name="yearsOfExperience"
                     placeholder="e.g., 3"
                     value={formData.yearsOfExperience}
@@ -187,9 +187,19 @@ const PostJob = () => {
                   />
                 </div>
               </div>
-              <Button type="submit" className="mt-6">
-                Post Job
-              </Button>
+              <div className="flex gap-4 mt-6">
+                <Button type="button" onClick={() => handleSubmit("Open")}>
+                  Post Job
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleSubmit("Draft")}
+                >
+                  Save as Draft
+                </Button>
+              </div>
             </form>
             <Modal
               isOpen={modalOpen}
@@ -200,7 +210,6 @@ const PostJob = () => {
                 navigate("/view-jobs");
               }}
             />
-            ;
           </div>
         </div>
       </div>

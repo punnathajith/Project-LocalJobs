@@ -4,6 +4,7 @@ import type { Filters } from "./FiltersSidebar";
 interface JobListProps {
   filters: Filters;
   search: string;
+  sort?: string;
 }
 
 const jobs = [

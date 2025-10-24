@@ -10,6 +10,7 @@ export interface JobData {
   requiredSkills: string[];
   jobDescription: string;
   applicationEmail: string;
+  status: "Open" | "Closed" | "Expired" | "Draft";
 }
 
 export const jobApi = {

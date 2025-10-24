@@ -29,26 +29,44 @@ export default function LocationField({ value, onChange }: Props) {
 
         try {
           const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+            `${
+              import.meta.env.VITE_API_BASE_URL
+            }/api/location/reverse?lat=${latitude}&lon=${longitude}`
           );
-          const data = await response.json();
 
-          // Use city + state + country if available
-          const address = data.address;
-          const formattedLocation =
-            `${address.city || address.town || address.village || ""}, ` +
-            `${address.state || ""}, ${address.country || ""}`;
+          if (!response.ok) throw new Error("Failed to get location");
+
+          const data = await response.json();
+          const address = data.address || {};
+
+          const formattedLocation = [
+            address.house_number,
+            address.road,
+            address.suburb,
+            address.city || address.town || address.village,
+            address.state,
+            address.postcode,
+            address.country,
+          ]
+            .filter(Boolean)
+            .join(", ");
 
           setLocation(formattedLocation);
           onChange(formattedLocation);
         } catch (err) {
-          console.error(err);
+          console.error("Geocoding error:", err);
           setLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+          onChange(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
         }
       },
       (error) => {
         console.error(error);
         alert("Unable to retrieve your location.");
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
       }
     );
   };

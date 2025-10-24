@@ -3,34 +3,44 @@ import mongoose from "mongoose";
 
 const jobSchema = new Schema(
   {
-    jobTitle: { type: String, required: true },
+    jobTitle: { type: String, required: true, trim: true },
     closeDate: { type: Date, required: true },
-    location: { type: String, required: true },
-    yearsOfExperience: { type: Number, required: true },
-    salary: { type: String },
+    location: { type: String, required: true, trim: true },
+    yearsOfExperience: { type: Number, required: true, min: 0 },
+    salary: { type: String, default: "Not specified" },
     jobType: {
       type: String,
       enum: ["Full-time", "Part-time", "Contract", "Internship", "Remote"],
       required: true,
     },
     requiredSkills: { type: [String], required: true },
-    jobDescription: { type: String, required: true },
-    applicationEmail: { type: String, required: true },
+    jobDescription: { type: String, required: true, trim: true },
+    applicationEmail: {
+      type: String,
+      required: true,
+      match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // ✅ Basic email validation
+    },
     postedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    refPath: "posterType", 
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      refPath: "posterType", // ✅ Dynamic reference to either User or Company
+    },
+    posterType: {
+      type: String,
+      required: true,
+      enum: ["User", "Company"],
+    },
+    status: {
+      type: String,
+      enum: ["Open", "Closed","Draft", "Expired"],
+      default: "Open", 
+    },
   },
-  posterType: {
-    type: String,
-    required: true,
-    enum: ["User", "Company"], 
-  },
-  },
-  { timestamps: true }
+  { timestamps: true } 
 );
 
 export const JobModel = model("Job", jobSchema);
+
 
 
 
